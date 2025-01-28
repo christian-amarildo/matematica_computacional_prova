@@ -1,0 +1,89 @@
+def fatoracao_lu_manual(A):
+    """
+    Realiza a fatoração LU da matriz A sem o uso de bibliotecas externas.
+
+    Parâmetros:
+        A (list of lists): Matriz quadrada a ser fatorada.
+
+    Retorno:
+        L (list of lists): Matriz triangular inferior.
+        U (list of lists): Matriz triangular superior.
+    """
+    n = len(A)
+    L = [[0.0] * n for _ in range(n)]
+    U = [[0.0] * n for _ in range(n)]
+
+    for i in range(n):
+        L[i][i] = 1.0
+
+        for j in range(i, n):
+            U[i][j] = A[i][j] - sum(L[i][k] * U[k][j] for k in range(i))
+
+        for j in range(i + 1, n):
+            L[j][i] = (A[j][i] - sum(L[j][k] * U[k][i] for k in range(i))) / U[i][i]
+
+    return L, U
+
+def fatoracao_lu_pivoteamento_manual(A):
+    """
+    Realiza a fatoração LU com pivoteamento parcial da matriz A sem o uso de bibliotecas externas.
+
+    Parâmetros:
+        A (list of lists): Matriz quadrada a ser fatorada.
+
+    Retorno:
+        P (list of lists): Matriz de permutação.
+        L (list of lists): Matriz triangular inferior.
+        U (list of lists): Matriz triangular superior.
+    """
+    n = len(A)
+    P = [[1 if i == j else 0 for j in range(n)] for i in range(n)]
+    L = [[0.0] * n for _ in range(n)]
+    U = [[A[i][j] for j in range(n)] for i in range(n)]
+
+    for i in range(n):
+        L[i][i] = 1.0
+
+    for k in range(n - 1):
+        # Pivoteamento parcial
+        max_index = max(range(k, n), key=lambda i: abs(U[i][k]))
+        if max_index != k:
+            U[k], U[max_index] = U[max_index], U[k]
+            P[k], P[max_index] = P[max_index], P[k]
+            L[k], L[max_index] = L[max_index], L[k]
+
+        for i in range(k + 1, n):
+            L[i][k] = U[i][k] / U[k][k]
+            for j in range(k, n):
+                U[i][j] -= L[i][k] * U[k][j]
+
+    return P, L, U
+
+# Exemplo de uso
+if __name__ == "__main__":
+    A = [
+        [4, 3, 2],
+        [2, 1, 1],
+        [6, 5, 4]
+    ]
+
+    print("Fatoração LU sem pivoteamento:")
+    L, U = fatoracao_lu_manual(A)
+    print("L:")
+    for row in L:
+        print(row)
+    print("U:")
+    for row in U:
+        print(row)
+
+    print("\nFatoração LU com pivoteamento parcial:")
+    P, L, U = fatoracao_lu_pivoteamento_manual(A)
+    print("P:")
+    for row in P:
+        print(row)
+    print("L:")
+    for row in L:
+        print(row)
+    print("U:")
+    for row in U:
+        print(row)
